@@ -1,0 +1,41 @@
+---
+title: "Topic Correlation Exploration"
+author: "Muhammad Idrus F"
+date: "May 30, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Natural Language Processing (NLP) is a part of artificial intelligence concern on the interactions between computers and human language. There are several major tasks in NLP and one of it is topic segmentation and recognition. Also known as topic modelling. 
+
+### Topic Modelling
+Topic model is a type of statistical model for discovering the abstract "topics" that occur in a collection of documents. One of the most popular algorithm in topic modelling is Latent Dirichlet Allocation (LDA). It is useful tools for statistical analysis of document collection and other discrete data.
+
+#### Latent Dirichlet Allocation (LDA)
+LDA is a generative statistical model that allows sets of observations to be explained by unobserved groups that explain why some parts of the data are similar. For example, if observations are words collected into documents, it posits that each document is a mixture of a small number of topics and that each word's creation is attributable to one of the document's topics.
+
+In LDA, each document may be viewed as a mixture of various topics. For example, an LDA model might have topics that can be classified as *CAT related* and *DOG related*. A topic has probabilities of generating various words, such as _milk_, _meow_, and _kitten_, which can be classified and interpreted by the viewer as "CAT related". Naturally, the word _cat_ itself will have high probability given this topic. The "DOG related"" topic likewise has probabilities of generating each word: _puppy_, _bark_, and _bone_ might have high probability.
+
+
+
+* Latent Dirichlet Allocation (LDA)
+* Correlated topic model (CTM)
+* Word Correlation
+* STM package
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
