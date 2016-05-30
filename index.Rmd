@@ -11,8 +11,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Natural Language Processing (NLP) is a part of artificial intelligence concern on the interactions between computers and human language. There are several major tasks in NLP and one of it is topic segmentation and recognition. Also known as topic modelling. 
 
+
 ### Topic Modelling
 Topic model is a type of statistical model for discovering the abstract "topics" that occur in a collection of documents. One of the most popular algorithm in topic modelling is Latent Dirichlet Allocation (LDA). It is useful tools for statistical analysis of document collection and other discrete data.
+
 
 #### Latent Dirichlet Allocation (LDA)
 LDA is a generative statistical model that allows sets of observations to be explained by unobserved groups that explain why some parts of the data are similar. For example, if observations are words collected into documents, it posits that each document is a mixture of a small number of topics and that each word's creation is attributable to one of the document's topics.
@@ -20,22 +22,27 @@ LDA is a generative statistical model that allows sets of observations to be exp
 In LDA, each document may be viewed as a mixture of various topics. For example, an LDA model might have topics that can be classified as *CAT related* and *DOG related*. A topic has probabilities of generating various words, such as _milk_, _meow_, and _kitten_, which can be classified and interpreted by the viewer as "CAT related". Naturally, the word _cat_ itself will have high probability given this topic. The "DOG related"" topic likewise has probabilities of generating each word: _puppy_, _bark_, and _bone_ might have high probability.
 
 
+##### Aplication, Extension and Similarity
+The LDA model is highly modular and can therefore be easily extended. The main field of interest is modeling relations between topics. This is achieved by using another distribution on the simplex instead of the Dirichlet. The Correlated Topic Model follows this approach, inducing a correlation structure between topics by using the logistic normal distribution instead of the Dirichlet. Another extension is the hierarchical LDA (hLDA),[10] where topics are joined together in a hierarchy by using the nested [Chinese restaurant process](https://en.wikipedia.org/wiki/Chinese_restaurant_process).
 
-* Latent Dirichlet Allocation (LDA)
-* Correlated topic model (CTM)
-* Word Correlation
-* STM package
 
-```{r cars}
-summary(cars)
-```
+#### Correlated Topic Model (CTM)
+As mentioned above, CTM is an extended of LDA. The CTM builds on the earlier latent Dirichlet allocation (LDA) model of Blei, Ng and Jordan, which is an instance of a general family of mixed membership models for decomposing data into multiple latent components.
 
-## Including Plots
+A limitation of LDA is the inability to model topic correlation even though, for example, a document about genetics is more likely to also be about disease than x-ray astronomy. This limitation stems from the use of the Dirichlet distribution to model the variability among the topic proportions. CTM is able to develop correlation via the logistic normal distribution. The CTM gives a better fit than LDA on a collection of OCRed articles from the journal Science. Furthermore, the CTM provides a natural way of visualizing and exploring this and other unstructured data sets.
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+### Topic Modelling in R
+There are several packages in R which can be used for topic modelling i.e _topicmodelling_, _tm_, _lda_ and _stm_ package.  But _stm_ package has most advance compared to others. _stm_ (Structural Topic Model) package allows researchers to flexibly estimate a topic model that includes document-level meta-data. Estimation is accomplished through a fast variational approximation based approach. The _stm_ package also provides many useful features, including rich ways to explore topics, appropriate uncertainty estimation, and extensive plotting and visualization options.
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+#### stm package Demo
+Here is a demo how to use _stm_ package in R.
+
+![](C:/Users/muhammad.idrus/Documents/GitHub/topic-corr/Capture.png)
+
+Refferences :
+* [LDA](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation) 
+* [CTM](https://www.cs.princeton.edu/~blei/papers/BleiLafferty2006.pdf)
+* [stm package](https://cran.r-project.org/web/packages/stm/vignettes/stmVignette.pdf)
+
