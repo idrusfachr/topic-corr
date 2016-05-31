@@ -135,20 +135,8 @@ labelTopics(docFit, c(1, 5, 7)) #list of top words for specific topic
 ```
 
 We can also use wordcloud to display collections of words that are associated with specific topic
-```{r}
+```{r, warning=FALSE}
 cloud(docFit, topic= 7) #wordcloud for specific topic
-```
-
-The second approach is to read the actual documents that are  estimated to be highly associated with each topic.
-
-```{r}
-thoughts2<-findThoughts(docFit, texts=doc$Content[1:649],n=3, topics=2)$docs[[1]]
-thoughts6<-findThoughts(docFit, texts=doc$Content[1:649],n=3, topics=6)$docs[[1]]
-#will show you the output
-par(mfrow = c(1, 2),mar = c(.5, .5, 1, .5))
-plotQuote(thoughts1, width = 30, main = "Topic 2")
-plotQuote(thoughts4, width = 30, main = "Topic 6")
-
 ```
 
 Other way to understand the topic is using _plot.STM_ function with type 'persepective'
