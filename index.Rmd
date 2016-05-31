@@ -3,11 +3,15 @@ title: "Topic Correlation Exploration"
 author: "Muhammad Idrus F"
 date: "May 30, 2016"
 output: html_document
+self_contained : yes
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+
+
 
 Natural Language Processing (NLP) is a part of artificial intelligence concern on the interactions between computers and human language. There are several major tasks in NLP and one of it is topic segmentation and recognition. Also known as topic modelling. 
 
@@ -36,13 +40,142 @@ A limitation of LDA is the inability to model topic correlation even though, for
 There are several packages in R which can be used for topic modelling i.e _topicmodelling_, _tm_, _lda_ and _stm_ package.  But _stm_ package has most advance compared to others. _stm_ (Structural Topic Model) package allows researchers to flexibly estimate a topic model that includes document-level meta-data. Estimation is accomplished through a fast variational approximation based approach. The _stm_ package also provides many useful features, including rich ways to explore topics, appropriate uncertainty estimation, and extensive plotting and visualization options.
 
 
-#### stm package Demo
-Here is a demo how to use _stm_ package in R.
+#### stm Package Demo
+In this section we demonstrate the basics of using the package. presents a heuristic overview of the package, which parallels a typical workflow. For each step we list different functions in the stm package that accomplish each task. First users ingest the data and prepare it for analysis. Next a structural topic model is estimated. After that, stm package allows us to dig deeper our analysis by _evaluate_, _understand_ and _visualize_ our estimation.
 
-![](C:/Users/muhammad.idrus/Documents/GitHub/topic-corr/Capture.png)
 
-Refferences :
-* [LDA](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation) 
-* [CTM](https://www.cs.princeton.edu/~blei/papers/BleiLafferty2006.pdf)
-* [stm package](https://cran.r-project.org/web/packages/stm/vignettes/stmVignette.pdf)
+1. **Ingest** : Reading and processing text data
+The firt step is setting up the package in our R by activate the library. 
 
+```{r message=FALSE, warning = FALSE, results='hide'}
+library(stm)
+library(dplyr) # for data prepartion
+```
+
+If we haven't installed stm package, we should install it first using:
+> install.packages("stm") *or*
+> library(devtools)
+> install_github("bstewart/stm",dependencies=TRUE)
+
+Then, load and clean the data. 
+```{r message=FALSE, warning = FALSE, results='hide'}
+doc = read.csv("C:/Work/data_text.csv")
+doc = select(doc, -c(2))
+stpw = readLines("C:/Work/code/stopwords-id.txt") #because we use bahasa Indonesia, we need to add a list of stopwords bahasa indonesia to customstopwords to remove unnecessary word from our data
+
+processed = textProcessor(doc$Content, metadata=doc,
+                          lowercase=TRUE, removestopwords=TRUE, removenumbers=TRUE,
+                          removepunctuation=TRUE, stem=TRUE, wordLengths=c(3,Inf),
+                          sparselevel=1,
+                          verbose=TRUE, onlycharacter= FALSE, striphtml=FALSE,
+                          customstopwords=stpw, onlytxtfiles=TRUE)
+
+#structure and index for usage in the stm model.
+out <- prepDocuments(processed$documents, processed$vocab, processed$meta)
+plotRemoved(processed$documents, lower.thresh=seq(1,200, by=100))
+
+#output will have object meta, documents, and vocab 
+docs <- out$documents
+vocab <- out$vocab
+meta <-out$meta
+
+```
+
+_textProcessor_ function implements stop removal stopwords, converting to lower case, removing number, removing punctuation, and creating output. _prepDocuments_ used to process data into the right format and removing words due to frequency.
+
+
+2. **Estimate** : Estimating the structural topic model
+
+The ingest process will output the clean data with right format. Then the output used for estimating the structural topic model.
+```{r message=FALSE, warning = FALSE, results='hide'}
+#run an stm model using the 'out' data. K topics
+docFit <- stm(out$documents,out$vocab,K=7, max.em.its=75, data=out$meta,seed=5926696)
+```
+We set the number of topic as 7, but stm allows us to select our preferred number of topic.
+
+
+3. **Evaluate** : Model selection and search
+
+After we estimate structural topic modelling, the next thing to do is finding out the best model of our estimation.
+
+_Model selection_
+Users may wish to esimate a many model. The function selectModel automates this process to facilitate finding a model with good properties. _plotModels_ helps users to visualize the result of model selection. 
+
+```{r message=FALSE, warning = FALSE, results='hide'}
+docSelect <- selectModel(out$documents,out$vocab,K=7, max.em.its=75,data=meta,runs=10,seed=8458159)
+plotModels(docSelect)
+```
+
+_Model search_
+Other way to evaluate the estimation is using the maximum number of topic (K). There is not a “right” answer to the number of topics that are appropriate for a given corpus, but the function searchK uses a data-driven approach to selecting the number of topics. The function will perform several automated tests to help choose the number of topics including calculating the held out likelihood (Wallach et al. 2009) and performing a residual analysis (Taddy 2012).
+
+```{r message=FALSE, warning = FALSE, results='hide'}
+storage <- searchK(out$documents, out$vocab, K = c(4, 7), data = meta)
+```
+```{r}
+storage
+```
+
+
+4. **Understand** : Interpreting the STM by plotting and inspecting results
+
+After choosing a model based on ex-ante criteria, the user must next interpret the model
+results. There are many ways to investigate the output, such inspecting the words associated
+with topics or the relationship between metadata and topics. To investigate the output of the
+model, the stm package provides a number of options.
+
+* Displaying words associated with topics
+* Estimating relationships between metadata and topics/topical content
+* Calculating topic correlations
+
+_Understanding topics through words and example documents_
+The first approach is to look at collections of words that are associated with topics
+```{r message=FALSE, warning = FALSE}
+labelTopics(docFit, c(1, 5, 7)) #list of top words for specific topic
+```
+
+We can also use wordcloud to display collections of words that are associated with specific topic
+```{r}
+cloud(docFit, topic= 7) #wordcloud for specific topic
+```
+
+The second approach is to read the actual documents that are  estimated to be highly associated with each topic.
+
+```{r}
+thoughts2<-findThoughts(docFit, texts=doc$Content[1:649],n=3, topics=2)$docs[[1]]
+thoughts6<-findThoughts(docFit, texts=doc$Content[1:649],n=3, topics=6)$docs[[1]]
+#will show you the output
+par(mfrow = c(1, 2),mar = c(.5, .5, 1, .5))
+plotQuote(thoughts1, width = 30, main = "Topic 2")
+plotQuote(thoughts4, width = 30, main = "Topic 6")
+
+```
+
+Other way to understand the topic is using _plot.STM_ function with type 'persepective'
+```{r}
+plot.STM(docFit, type = "perspectives", topics = c(2, 5))
+```
+
+_Estimating metadata/topic relationships_
+stm package permits correlation between topic. These can be visualized using plot.topicCorr(). The user can specify a correlation threshold. If two topics are correlated above that threshold, then those two topics are considered to be linked.
+
+```{r}
+mod.out.corr<-topicCorr(docFit) #topic correlation
+plot.topicCorr(mod.out.corr)
+```
+
+_Summary visualization_
+Corpus level visualization can be done in several different ways. The first relates to the
+expected proportion of the corpus that belongs to each topic. This can be be plotted using
+plot.stm(,type = "summary").
+
+```{r}
+plot.STM(docFit, type="summary", xlim=c(0,.4))
+```
+
+
+
+**Refferences** :
+[LDA](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation), 
+[CTM](https://www.cs.princeton.edu/~blei/papers/BleiLafferty2006.pdf),
+[stm package](https://cran.r-project.org/web/packages/stm/vignettes/stmVignette.pdf)
